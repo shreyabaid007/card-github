@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="theme-color" content="#48485E">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+ <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+<div>
+<form>
+ <input type="text" name="ghusername" id="ghusername" placeholder="github login">
+<button id=submit>Add</button>
+</form>
+<div class="line"></div>
+<div class="top">Sort by:<span id="name" style="padding-left: 10px">Name</span><span id="location" style="padding-left: 10px">Location</span><span id="followers"style="padding-left: 10px">Followers</span></div>
+<table id="t1" cellpadding="5x" cellspacing="25px">
+  <tr id="myRow">
+    
+  </tr>
+</table><br>
+
+
+</div>
+<script>
+
+    $('#submit').on('click', function(e){
+    e.preventDefault();
+   var user = $('#ghusername').val();
+   var requri   = 'https://api.github.com/users/'+user;  
+   requestJSON(requri, function(json) {
+if(json.message == "Not Found" || user == '') {
+       alert("User does not exist.")
+        return;
+      }
+      
+      else {       
+        var fullname   = json.name;
+        var aviurl     = json.avatar_url;
+        var location   = json.location;
+        var followersnum = json.followers;
+        var url=json.html_url;
+        if(fullname == undefined) { fullname = user; }
+  
+    var row = document.getElementById("myRow");
+    var x = row.insertCell(0);
+  var outhtml =  '<div class="ghcontent" ><img class="img2" src="'+aviurl+'" width="200" height="200" alt="'+user+'"><img class="img1" src="cross.png" width="20" height="20" >';
+        outhtml = outhtml +'<h3 id="gitname">'+fullname+'</h3>';
+        outhtml=outhtml+'<p>Location:<span id="gitlocation">'+location+'</span></p>';
+        outhtml = outhtml + '<p>Followers:<span id="gitfollowers" >'+followersnum+'</span></p>';
+        outhtml=outhtml+'<p id="gone"><span id="url">'+url+'</span></p></div>';
+        
+   x.innerHTML=outhtml;
+  };
+     
+    
+});
+})
+    function requestJSON(url, callback) {
+    $.ajax({
+      url: url,
+      complete: function(xhr) {
+        callback.call(null, xhr.responseJSON);
+      }
+    });
+  }
+
+ 
+   
+$("body").on("click", ".img1", function () {
+     var $td = $(this).closest('td');
+    $td.fadeOut(function () {
+        $td.remove();
+    });
+});
+ 
+
+$('#name').on('click', function(){
+    $('tr').children("td").sort(function(a, b){
+        return $("#gitname",a).text().localeCompare($("#gitname",b).text());
+    }).appendTo('tr');
+});
+
+$('#location').on('click', function(){
+    $('tr').children("td").sort(function(a, b){
+        return $("#gitlocation",a).text().localeCompare($("#gitlocation",b).text());
+    }).appendTo('tr');
+});
+
+$('#followers').on('click', function(){
+    $('tr').children("td").sort(function(a, b){
+        if (parseInt($("#gitfollowers",b).text())>(parseInt($("#gitfollowers",a).text()))) return 1;
+         else if(parseInt($("#gitfollowers",b).text())<(parseInt($("#gitfollowers",a).text()))) return -1;
+         else return 0;
+    }).appendTo('tr');
+});
+
+
+
+$("body").on('click',".ghcontent",function(e){
+  var x=$(this);
+  aname=x.find('#url').text();
+ 
+  window.open(aname);
+}).on('click', '.img1', function(e) {
+    // clicked on descendant div
+    e.stopPropagation();
+});
+
+
+
+
+
+
+</script>
+
+</body>
+</html>
